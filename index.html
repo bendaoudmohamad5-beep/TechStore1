@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>TechStore - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #020617;
+            color: white;
+        }
+
+        /* HEADER */
+        header {
+            position: sticky;
+            top: 0;
+            background: #1e293b;
+            color: white;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        header h2 { color: #38bdf8; margin: 0; }
+        header button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .adminBtn { background: #334155; color: white; }
+        .userBtn { background: #0ea5e9; color: white; }
+
+        section { padding: 35px; }
+        .hidden { display: none; }
+
+        /* ADMIN FORM */
+        .admin {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 35px;
+            color: black;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .admin button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* SHOP */
+        .shop {
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 22px;
+            padding: 25px;
+            border: 1px solid #1e40af;
+        }
+        .shop h3 { color: #e0f2fe; margin-top: 0; }
+
+        /* SEARCH BAR */
+        .searchBar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .searchBar input, .searchBar select {
+            flex: 1;
+            margin: 0;
+        }
+        .micBtn {
+            background: #38bdf8;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 46px;
+            cursor: pointer;
+        }
+
+        /* PRODUCTS GRID */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            color: black;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .product:hover { transform: translateY(-5px); }
+        .product img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #f1f5f9;
+        }
+        .product h4 { margin: 10px 0 5px 0; }
+        .cat-tag { font-size: 12px; color: #64748b; font-weight: bold; text-transform: uppercase; }
+        .oldPrice { text-decoration: line-through; color: #94a3b8; font-size: 14px; }
+        .newPrice { font-size: 20px; font-weight: bold; color: #1e3a8a; margin: 5px 0; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .whatsappBtn { background: #25D366; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .editBtn { background: #f59e0b; color: white; border: none; padding: 5px; border-radius: 8px; cursor: pointer; }
+        .deleteBtn { background: #ef4444; color: white; border: none; padding: 5px; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>TechStore</h2>
+    <div>
+        <button class="adminBtn" id="adminToggle" onclick="askAdmin()">🔐 Admin</button>
+        <button class="userBtn hidden" id="userToggle" onclick="goUser()">👤 Utilisateur</button>
+    </div>
+</header>
+
+<section>
+    <div class="admin hidden" id="adminDiv">
+        <h3>Ajouter un Produit</h3>
+        <input id="name" placeholder="Nom du produit">
+        <input id="price" type="number" placeholder="Prix (DH)">
+        <input id="image" placeholder="Lien image (URL)">
+
+        <select id="category" onchange="checkOther()">
+            <option value="PC">PC</option>
+            <option value="Téléphone">Téléphone</option>
+            <option value="Caméra">Caméra</option>
+            <option value="Autre">Autre</option>
+        </select>
+
+        <input id="otherCat" class="hidden" placeholder="Précisez le type (ex: Drone)">
+        <button onclick="addProduct()">Ajouter au Stock</button>
+    </div>
+
+    <div class="shop">
+        <h3>🛒 Boutique</h3>
+
+        <div class="searchBar">
+            <input id="search" placeholder="🔍 Rechercher..." onkeyup="display()">
+            <button class="micBtn" onclick="voiceSearch()">🎙️</button>
+            <select id="filter" onchange="display()">
+                <option value="">Tous les produits</option>
+                <option value="PC">PC</option>
+                <option value="Téléphone">Téléphone</option>
+                <option value="Caméra">Caméra</option>
+                <option value="Autre">Autre</option>
+            </select>
+        </div>
+
+        <div class="products" id="products"></div>
+    </div>
+</section>
+
+<script>
+    let mode = "user";
+    let products = JSON.parse(localStorage.getItem("products")) || [];
+
+    // --- AUTHENTICATION ---
+    function askAdmin() {
+        let pass = prompt("Entrer le code Admin :");
+        if (pass === "moh123") {
+            mode = "admin";
+            document.getElementById("adminDiv").classList.remove("hidden");
+            document.getElementById("adminToggle").classList.add("hidden");
+            document.getElementById("userToggle").classList.remove("hidden");
+            display();
+        } else {
+            alert("Code incorrect !");
+        }
+    }
+
+    function goUser() {
+        mode = "user";
+        document.getElementById("adminDiv").classList.add("hidden");
+        document.getElementById("adminToggle").classList.remove("hidden");
+        document.getElementById("userToggle").classList.add("hidden");
+        display();
+    }
+
+    function checkOther() {
+        let cat = document.getElementById("category").value;
+        document.getElementById("otherCat").classList.toggle("hidden", cat !== "Autre");
+    }
+
+    // --- CORE FUNCTIONS ---
+    function addProduct() {
+        let name = document.getElementById("name").value;
+        let price = document.getElementById("price").value;
+        let image = document.getElementById("image").value;
+        let cat = document.getElementById("category").value;
+        let other = document.getElementById("otherCat").value;
+
+        let finalCat = (cat === "Autre") ? (other || "Autre") : cat;
+
+        if (name && price && image) {
+            products.push({
+                name: name,
+                price: price,
+                oldPrice: "",
+                image: image,
+                category: finalCat
+            });
+
+            save();
+            clearForm();
+            
+            // إرجاع الفلاتر للوضع الافتراضي باش يبان المنتج الجديد
+            document.getElementById("search").value = "";
+            document.getElementById("filter").value = "";
+            
+            display();
+            alert("Produit ajouté ! ✅");
+        } else {
+            alert("Veuillez remplir tous les champs !");
+        }
+    }
+
+    function deleteProduct(index) {
+        if(confirm("Supprimer ce produit ?")) {
+            products.splice(index, 1);
+            save();
+            display();
+        }
+    }
+
+    function editPrice(index) {
+        let newPrice = prompt("Nouveau prix (DH) :", products[index].price);
+        if (newPrice) {
+            products[index].oldPrice = products[index].price;
+            products[index].price = newPrice;
+            save();
+            display();
+        }
+    }
+
+    function save() {
+        localStorage.setItem("products", JSON.stringify(products));
+    }
+
+    function clearForm() {
+        ["name", "price", "image", "otherCat"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("category").value = "PC";
+        document.getElementById("otherCat").classList.add("hidden");
+    }
+
+    // --- DISPLAY ---
+    function display() {
+        let searchTerm = document.getElementById("search").value.toLowerCase();
+        let filterCat = document.getElementById("filter").value.toLowerCase();
+        let html = "";
+
+        products.forEach((p, i) => {
+            let matchesSearch = p.name.toLowerCase().includes(searchTerm);
+            
+            // منطق الفلتر: واش الصنف كينتمي للفئات الرئيسية أو "Autre"
+            let isMainCat = ["pc", "téléphone", "caméra"].includes(p.category.toLowerCase());
+            let displayCat = isMainCat ? p.category.toLowerCase() : "autre";
+            let matchesFilter = !filterCat || displayCat === filterCat;
+
+            if (matchesSearch && matchesFilter) {
+                html += `
+                <div class="product">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/250x180?text=Image+Non+Valide'">
+                    <div class="cat-tag">${p.category}</div>
+                    <h4>${p.name}</h4>
+                    ${p.oldPrice ? `<div class="oldPrice">${p.oldPrice} DH</div>` : ""}
+                    <div class="newPrice">${p.price} DH</div>
+                    
+                    <div class="btn-group">
+                        <button class="whatsappBtn" onclick="sendWhatsApp('${p.name.replace(/'/g, "\\'")}','${p.price}')">📩 Commander via WhatsApp</button>
+                        ${mode === "admin" ? `
+                            <button class="editBtn" onclick="editPrice(${i})">✏️ Modifier Prix</button>
+                            <button class="deleteBtn" onclick="deleteProduct(${i})">🗑️ Supprimer</button>
+                        ` : ""}
+                    </div>
+                </div>`;
+            }
+        });
+
+        document.getElementById("products").innerHTML = html || "<p style='grid-column:1/-1; text-align:center;'>Aucun produit trouvé.</p>";
+    }
+
+    // --- UTILS ---
+    function voiceSearch() {
+        if (!('webkitSpeechRecognition' in window)) { alert("Micro non supporté"); return; }
+        let r = new webkitSpeechRecognition();
+        r.lang = "fr-FR"; r.start();
+        r.onresult = e => {
+            document.getElementById("search").value = e.results[0][0].transcript;
+            display();
+        }
+    }
+
+    function sendWhatsApp(name, price) {
+        let phone = "212781193977";
+        let msg = `Bonjour TechStore, je souhaite commander : ${name} (${price} DH)`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    // Initial load
+    display();
+</script>
+
+</body>
+</html>
